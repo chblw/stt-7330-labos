@@ -1,0 +1,395 @@
+---
+title: "Labo de la Saint-Valentin"
+author: "Charles-Hubert van Eyll, Christopher Blier-Wong & Chaymae Yousfi"
+date: "16 février 2018"
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Paquetages et données
+```{r}
+load("LovaActually.RData")
+library(NbClust)
+library(clValid)
+library(plotly)
+```
+```{r, echo = FALSE}
+dat<- data.frame(t=seq(0, 2*pi, by=0.1) )
+ xhrt <- function(t) 16*sin(t)^3
+ yhrt <- function(t) 13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)
+ dat$y=yhrt(dat$t)
+ dat$x=xhrt(dat$t)
+ with(dat, plot(x,y, type="l"))
+with(dat, polygon(x,y, col="hotpink"))   
+points(c(10,-10, -15, 15), c(-10, -10, 10, 10), pch=169, font=5)
+```
+
+
+## Organisation de la matrice
+Il faut d'abord modifier l'ordre des colonnes dans la matrice et produire les matrices de distance. On utilise la
+matrice de distance euclidienne et la matrice de distance $\chi^2$. 
+
+Soit $\chi^2$, la matrice de chi carré. Alors, chaque élément de la matrice $\chi^2$ est calculé selon la formule suivante :
+$$ \chi^2_{i, j} = \frac{Freq_{i, j}}{\sqrt{Freq_i \times Freq_j}}.$$
+On produit une matrice de dissimilarité en calculant 1 - $\chi^2$.
+
+```{r, echo = FALSE}
+loveCorrigee = as.matrix(love[c(1,2,7:14,3:6),])
+rownames(loveCorrigee) = colnames(loveCorrigee)
+
+loveCorrigee[upper.tri(loveCorrigee)] <- 
+  t(loveCorrigee)[upper.tri(loveCorrigee)]
+
+scenes <- diag(loveCorrigee)
+dist.chi2 <- as.dist(1 - loveCorrigee / sqrt(scenes %*% t(scenes)))
+dist.eucl <- dist(loveCorrigee)
+
+```
+
+## Distance $\chi^2$
+
+```{r, echo = FALSE}
+as.matrix(loveCorrigee)[1:4, 1:4]
+as.matrix(dist.chi2)[1:4, 1:4]
+```
+
+
+## Classification hiérarchique euclidienne
+
+```{r, echo = FALSE}
+par(mar = c(0, 2, 2, 2) + 0.1)
+hc.eucl <- hclust(dist.eucl, "ave") 
+plot(hc.eucl, hang = -1, xlab = NA, sub = NA) 
+```
+
+## Classification hiérarchique $\chi^2$
+
+```{r, echo = FALSE}
+par(mar = c(0, 2, 2, 2) + 0.1)
+hc.chi2 <- hclust(as.dist(dist.chi2), "ave") 
+plot(hc.chi2, hang = -1, xlab = NA, sub = NA) 
+```
+
+## Comparaison des groupes
+Distance euclidienne, 3 et 4 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+for (i in 3:4) {
+  plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA)
+  rect.hclust(hc.eucl, k = i) 
+}
+```
+
+## Comparaison des groupes
+Distance euclidienne, 5 et 6 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+for (i in c(5, 6)) {
+  plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA)
+  rect.hclust(hc.eucl, k = i) 
+}
+```
+
+## Comparaison des groupes
+
+Distance $\chi^2$, 3 et 4 clusters
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+for (i in c(3, 4)) {
+  plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA)
+  rect.hclust(hc.chi2, k = i) 
+}
+```
+
+## Comparaison des groupes
+Distance $\chi^2$, 5 et 6 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+for (i in c(5, 6)) {
+  plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA)
+  rect.hclust(hc.chi2, k = i) 
+}
+```
+
+## Comparaison avec 3 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA, main = "Distance euclidienne")
+rect.hclust(hc.eucl, k = 3) 
+plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA, main = expression(paste("Distance ", chi^2)))
+rect.hclust(hc.chi2, k = 3) 
+```
+
+## Comparaison avec 4 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA, main = "Distance euclidienne")
+rect.hclust(hc.eucl, k = 4) 
+plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA, main = expression(paste("Distance ", chi^2)))
+rect.hclust(hc.chi2, k = 4) 
+```
+
+## Comparaison avec 5 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA, main = "Distance euclidienne")
+rect.hclust(hc.eucl, k = 5) 
+plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA, main = expression(paste("Distance ", chi^2)))
+rect.hclust(hc.chi2, k = 5) 
+```
+
+## Comparaison avec 6 clusters
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+plot(hc.eucl, cex = 0.6, xlab = NA, sub = NA, main = "Distance euclidienne")
+rect.hclust(hc.eucl, k = 6) 
+plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA, main = expression(paste("Distance ", chi^2)))
+rect.hclust(hc.chi2, k = 6) 
+```
+
+Le bon nombre semble être 5 clusters
+
+## K-moyennes
+
+```{r, echo = FALSE}
+loveAsDistance = as.matrix(as.dist(loveCorrigee))
+diag(loveAsDistance) = diag(loveCorrigee)
+```
+
+On applique le k-moyennes
+```{r}
+grps = cutree(hc.eucl, k = 3)
+result = kmeans(loveAsDistance, centers = 3) 
+table(result$cluster, grps)
+```
+Cet aperçu semble nous indiquer que K-means divise mal les observations du jeu de données.
+
+## Comparaison des valeurs de $k$
+
+On applique alors K-moyennes sur des nombres de centres de 1 à 10.
+On s'attend à une courbe en éboulis avec un coude visible qui représente notre bon nombre de centres.
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+plot(1:10, sapply(1:10, function(k) {kmeans(loveAsDistance, k)$tot.withinss}), type="l", ylab = "EQ inter-cluster", xlab  = "Nombre de centres", main = "Distance euclidienne")
+plot(1:10, sapply(1:10, function(k) {kmeans(dist.chi2, k)$tot.withinss}), type="l", ylab = "EQ inter-cluster", xlab  = "Nombre de centres", main = expression(paste("Distance ", chi^2)))
+```
+
+On observe que les graphiques résultants ne sont pas assez décroissants et ne possèdent pas de coude suffisamment apparent. Il ne semble pas y avoir des groupes naturels dans les données.
+
+## NbClust euclidienne
+
+On emploie NbClust pour obtenir le nombre optimal de clusters.
+
+```{r, echo = FALSE}
+res<-NbClust(loveAsDistance, min.nc=2, max.nc=8,
+             method="complete", index="silhouette")
+plot(res$All.index)
+```
+
+## NbClust $\chi^2$
+
+```{r, echo = FALSE}
+res<-NbClust(dist.chi2, min.nc=2, max.nc=8,
+             method="complete", index="silhouette")
+plot(res$All.index)
+```
+
+## NbClust valeurs suggérées
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+res<-NbClust(loveAsDistance, min.nc=2, max.nc=8, method="complete", index="silhouette")
+# plot(res$All.index)
+res$Best.nc
+
+res<-NbClust(dist.chi2, min.nc=2, max.nc=8, method="complete", index="silhouette")
+# plot(res$All.index)
+res$Best.nc
+```
+La fonction nous indique que le nombre optimal de clusters est le nombre maximal fourni, ce qui semble étrange.
+
+## clValid : euclidienne hierarchique
+
+```{r, echo = FALSE}
+stab.eucl = clValid(loveAsDistance, nClust = 2:8, clMethods = c("hierarchical", "kmeans"), validation = c("internal", "stability"))
+measures(stab.eucl)[, , 1]
+```
+
+## clValid : $\chi^2$ hierarchique
+
+```{r, echo = FALSE}
+stab.chi2 = clValid(as.matrix(dist.chi2), nClust = 2:8, clMethods = c("hierarchical", "kmeans"), validation = c("internal", "stability"))
+measures(stab.chi2)[, , 1]
+```
+
+## clValid : euclidienne $k$-moyennes
+
+```{r, echo = FALSE}
+measures(stab.eucl)[, , 2]
+```
+
+## clValid : $\chi^2$ $k$-moyennes
+
+```{r, echo = FALSE}
+measures(stab.chi2)[, , 2]
+```
+
+## clValid : Choix optimal de groupes euclidiens
+
+```{r, echo = FALSE}
+optimalScores(stab.eucl)
+```
+
+## clValid : Choix optimal de groupes $\chi^2$
+
+```{r, echo = FALSE}
+optimalScores(stab.chi2)
+```
+
+
+## Meilleur modèle
+
+On choisit le modèle de classification hiererchique avec 6 clusters et la matrice de distance $\chi^2$.
+
+```{r, echo = FALSE}
+plot(hc.chi2, cex = 0.6, xlab = NA, sub = NA, main = expression(paste("Distance ", chi^2)))
+rect.hclust(hc.chi2, k = 6, border = 2:8) 
+```
+
+## Conclusions
+
+- Résultats similaires selon différentes mesures de distance
+- Différence, à quel point les personnes seules se séparent du groupe.
+- Les couples sont tous regroupés à la fin
+- On a eu du plaisir
+
+## Projection des données en 2 dimensions
+
+```{r, echo = FALSE}
+grps <-  cutree(hc.chi2, k = 6)
+out <- prcomp(dist.chi2)
+plot(out$x[, 1], out$x[, 2], col = grps, type = "n")
+text(out$x[, 1], out$x[, 2], labels = hc.chi2$labels, cex = 0.5, col = grps) 
+```
+
+## Projection des données en 3 dimensions
+
+```{r, include=FALSE}
+p <- plot_ly(x = out$x[, 1], y = out$x[, 2], z = out$x[, 3], color = grps, colors = c('#BF382A', '#0C4B8E')) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'CP1'),
+                     yaxis = list(title = 'CP2'),
+                     zaxis = list(title = 'CP3')))
+```
+
+```{r, echo = FALSE}
+plot_ly(x = out$x[, 1], y = out$x[, 2], z = out$x[, 3], color = as.factor(grps), colors = "Set1", text = ~paste("Personnage: ", hc.chi2$labels)) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'CP1'),
+                     yaxis = list(title = 'CP2'),
+                     zaxis = list(title = 'CP3')))
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 1
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 2
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 3
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 4
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 5
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 6
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 7
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 8
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 9
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 10
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 11
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 12
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 13
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
+
+## Graphique des personnages
+```{r, echo = FALSE}
+i = 14
+plot(as.matrix(dist.chi2)[i, ], col = grps, main = hc.chi2$labels[i], type = "n")
+text(1:14,as.matrix(dist.chi2)[i, ],labels=hc.chi2$labels,cex=0.5, col = grps) 
+```
