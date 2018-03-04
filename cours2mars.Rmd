@@ -1,0 +1,157 @@
+---
+title: "Notes de cours 2 mars"
+output: html_document
+---
+
+## Rappel : Régression : 
+
+- Objectif : ajuster le modèle $f$ tel que $$y = f(x) + \epsilon, E[\epsilon] = 0, V(\epsilon) = \sigma^2$$
+- On veut estimer $f(x)$. On utilise $\hat{f}(x_0)$
+- Décomposition biais-variance de l'EQ
+- Compromis biais variance. par exemple, kppv. 
+- On se retrouve que si on trace k, on obtient un biais qui augmente et une variance qui diminue. On a un point avec un point minimal, qui correspond au k optimal. De facon théorique, on peut le faire. Voir labo. Il faut le faire !!!
+- Voir ISLR CH2
+
+## Classification supervisée
+Différence : la variable $Y$ représente une variable catégorique. Objectif : quel est la meilleure façon de classifier (meilleur classifieur théorique)
+
+On cherche un classifieur $h$ tel que $h(x_0) = y_0$. On veut souvent minimiser la probabilité d'erreur
+$$R(h) = \Pr_{(X, Y)} (h(X) \neq Y)$$
+calculé sur la distribution conjointe de $X$ et $Y$. On s'intéresse vraiment juste à quand je me trompe pour l'instant. 
+
+Théoriquement, quel est le meilleur choix de $h$ pour minimiser $R(h)$. Réponse : le classifieur de Bayes. 
+
+$$h_B = \arg\max_y \Pr(Y = y \vert X = x). $$
+
+On choisit le $Y$ le plus probable étant donné le $x$ observé. (similaire à l'estimateur maximum vraisemblance, on maximise la prob).
+
+Théorème : 
+$$R(h_B) \leq R(h) ~~~\forall ~h$$
+Preuve : Pour le cas de deux classes, i.e. $Y \in \left\{0, 1\right\}$.
+
+\[
+\begin{aligned}
+R(h) &= P(h(X) \neq Y)\\
+&= \int_x P(h(x) \neq Y \vert X = x) P(X = x)\textrm{d}x\\
+\end{aligned}
+\]
+
+On veut simplement montrer que 
+
+$$P(h(x) \neq Y \vert X = x) \geq P(h_B(X) \neq Y \vert X = x).$$
+On a 
+\[
+\begin{aligned}
+\Pr(h(X) \neq Y \vert X = x)&= 1 - \Pr(h(X) = Y \vert X = x)\\
+&= 1 - \Pr(h(X) = 1, Y = 1 \vert X = x) - \Pr (h(X) = 0, Y = 0 \vert X = x)\\
+&= 1 - \Pr(h(X) = 1\vert X = x)\Pr(Y = 1 \vert X = x) \\
+& \hspace{0.5in}- \Pr (h(X) = 0\vert X = x)\Pr(Y = 1 \vert X = x)\\
+&= 1 - 1_{\left\{h(X) = 1\right\}}\Pr(Y = 1 \vert X = x) \\
+& \hspace{0.5in} - 1_{\left\{ h(X) = 0 \right\}}\Pr(Y = 0 \vert X = x)
+\end{aligned}
+\]
+
+Donc, 
+\[
+\begin{aligned}
+\Pr(h(X) \neq Y \vert X = x) - \Pr(h_B(X) \neq Y \vert X = x)&=  1 - 1_{\left\{h(X) = 1\right\}}\Pr(Y = 1 \vert X = x)  - 1_{\left\{h(X) = 0\right\}}\Pr(Y = 0\vert X = x)\\
+& \hspace{0.3in} -1 + 1_{\left\{h_B(X) = 1\right\}}\Pr(Y = 1 \vert X = x) + 1_{\left\{h_B(X) = 0\right\}}\Pr(Y = 0\vert X = x)\\
+&=  1_{\left\{h_B(X) = 1\right\}}\Pr(Y = 1 \vert X = x) +(1 - 1_{\left\{h_B(X) = 1\right\}})(1 - \Pr(Y = 1\vert X = x))\\
+& \hspace{0.3in} - 1_{\left\{h(X) = 1\right\}}\Pr(Y = 1 \vert X = x) - (1 - 1_{\left\{h(X) = 1\right\}})(1 - \Pr(Y = 1\vert X = x))
+\end{aligned}
+\]
+
+On a une expression de la forme
+
+\[
+\begin{aligned}
+ab + (1 - a)(1 - b) - cb - (1 - c)(1 - b) &= ab + 1 -a - b + ab - cb - 1 + b + c - bc\\
+&= 2ab - a - 2bc + c\\
+&= (2b - 1)(a - c)
+\end{aligned}
+\]
+
+Donc, 
+
+\[
+\begin{aligned}
+\Pr(h(X) \neq Y \vert X = x) - \Pr(h_B(X) \neq Y \vert X = x)&= (2P(Y = 1\vert X - x) - 1)(1_{\left\{h_B(X) = 1\right\}} - 1_{\left\{h(X) = 1\right\}})\\
+&= 2(P(Y = 1\vert X - x) - \frac{1}{2})(1_{\left\{h_B(X) = 1\right\}} - 1_{\left\{h(X) = 1\right\}})\\
+&= 2AB
+\end{aligned}
+\]
+
+On souhaite montrer que 
+$$2AB \geq 0.$$
+Puisqu'on a seulement 2 classes :
+
+\[
+\begin{aligned}
+h_B(x) &= \left\{\begin{matrix} 1,& \textrm{si  } P(Y = 1 \vert X = x) > P(Y = 0\vert X = x)  \\ 
+0,& \textrm{si  } P(Y = 0 \vert X = x) > P(Y = 1\vert X = x)\end{matrix}\right.\\
+&= \left\{\begin{matrix} 1,& \textrm{si  } P(Y = 1 \vert X = x) > \frac{1}{2}  \\ 
+0,& \textrm{sinon}\end{matrix}\right.
+\end{aligned}
+\]
+
+Si $\Pr(Y = 1 \vert X = x) > \frac{1}{2}, 1_{\left\{h_B(X) = 1\right\}} = 1$ et $2AB \geq 0$.
+Si $\Pr(Y = 1 \vert X = x) < \frac{1}{2}, 1_{\left\{h_B(X) = 1\right\}} = 0$ et $2AB \geq 0$.
+
+Alors, $\Pr(h(X) \neq Y \vert X = x) - \Pr(h_B(X) \neq Y \vert X = x) \geq 0$
+et on conclut que $$R(h(X))\geq R(h_B(X)).$$
+
+Note : Si les classes se chevauchent dans la population, l'erreur de Bayes (i.e. le risque du classifieur de Bayes) sera > 0. Dans le vrai modèle, on ne peut pas atteindre une perfection. Analogue au résiduel dans une régression. Même avec le classifieur de Bayes, on peut faire des erreurs car $X$ ne détermine pas $Y$ de façon déterministe. L'erreur de Bayes est l'analogue à l'erreur irréductible en régression (estimer le $\sigma^2$ en régression).
+
+## Exemple
+
+Soit $X$, une v.a. telle que $X \sim U(0, 10).$ Supposons que 
+
+\[
+\begin{aligned}
+\Pr(Y = 1 \vert X = 0) &= \left\{\begin{matrix} 0.2,& \textrm{si  } 0.1 < x < 0.9  \\ 
+0.9,& \textrm{sinon} \end{matrix}\right.\\
+\end{aligned}
+\]
+Faire un dessin.
+Question : calculer le classifieur de Bayes et le risque de Bayes.
+
+Pour deux classes, on a 
+
+\[
+\begin{aligned}
+h_B(x)&= \left\{\begin{matrix} 1,& \textrm{si  } P(Y = 1 \vert X = x) > \frac{1}{2}  \\ 
+0,& \textrm{sinon}\end{matrix}\right.
+\end{aligned}
+\]
+
+Alors, on obtient 
+
+\[
+\begin{aligned}
+h_B(x)&= \left\{\begin{matrix} 0,& \textrm{si  } 0<x<0.9  \\ 
+1,& \textrm{sinon}\end{matrix}\right.\\
+&= \left\{\begin{matrix} 1,& \textrm{si  } x \in A  \\ 
+0,& \textrm{sinon.}\end{matrix}\right.
+\end{aligned}
+\]
+où $A = [0, 0.1] \cup [0.9, 10]$ et $\overline{A} = [0.1, 0.9].$
+
+Risque de Bayes : 
+
+On veut calculer 
+
+\[
+\begin{aligned}
+\Pr(h_B(X) \neq Y) &= \Pr(h_B(X) = 0, Y= 1) + \Pr(h_B(X) = 0, Y= 1)\\
+&= \Pr(h_B(X) = 0, Y= 1 \vert X \in A)\Pr(X \in A) \\
+&\hspace{0.3in} +\Pr(h_B(X) = 0, Y= 1 \vert X \in \overline{A})\Pr(X \in \overline{A}) \\
+&\hspace{0.3in} +\Pr(h_B(X) = 1, Y= 0 \vert X \in A)\Pr(X \in A) \\
+&\hspace{0.3in} +\Pr(h_B(X) = 1, Y= 0 \vert X \in \overline{A})\Pr(X \in \overline{A}) \\
+&= 0\times 0.92 + 0.2 \times 0.08 + 0.1\times 0.92 + 0 \times 0.08\\
+&= 0.108.
+\end{aligned}
+\]
+
+Même avec le meilleur classifieur possible, 11\% des observations ne sont pas dans la classe la plus probablem étant donné leur $x$.
+
+
