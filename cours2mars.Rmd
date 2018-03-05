@@ -128,7 +128,7 @@ Alors, on obtient
 
 \[
 \begin{aligned}
-h_B(x)&= \left\{\begin{matrix} 0,& \textrm{si  } 0<x<0.9  \\ 
+h_B(x)&= \left\{\begin{matrix} 0,& \textrm{si  } 0.1<x<0.9  \\ 
 1,& \textrm{sinon}\end{matrix}\right.\\
 &= \left\{\begin{matrix} 1,& \textrm{si  } x \in A  \\ 
 0,& \textrm{sinon.}\end{matrix}\right.
