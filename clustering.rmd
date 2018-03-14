@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Paquetages et données
+Les données proviennent d'une analyse par fivethirtyeight. La source est 
+https://github.com/fivethirtyeight/data/blob/master/love-actually/love_actually_adjacencies.csv
 ```{r}
 load("LovaActually.RData")
 library(NbClust)
