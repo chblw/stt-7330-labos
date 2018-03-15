@@ -5,7 +5,7 @@ set.seed(20180314)
 
 data(Default)
 
-kToTest <- c(2, 5, 10, 20, 50, 100, 200) 
+kToTest <- c(2, 5, 10, 20, 50, 100, 200, 10000) 
 
 res <- numeric(length(kToTest))
 
@@ -28,7 +28,7 @@ for(k in 1:length(kToTest)) {
     resCurrent[i] <- mean(out!= DefaultTest[, 1])
   }
   print(currentK)
-  print(resCurrent)
+  # print(resCurrent)
   res[k] <- mean(resCurrent)
 }
 
